@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        
+        <com.github.florent37.diagonallayout.DiagonalLayout
+            android:layout_width="match_parent"
+            android:layout_height="250dp"
+            app:diagonal_angle="6"
+            app:diagonal_direction="left"
+            app:diagonal_position="bottom"
+            >
+
+            <com.flaviofaria.kenburnsview.KenBurnsView
+                android:id="@+id/poster_image_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="center"/>
+
+        </com.github.florent37.diagonallayout.DiagonalLayout>
+
+        <TextView
+            android:id="@+id/poster_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start"
+            android:fontFamily="sans-serif"
+            android:gravity="center"
+            android:padding="20dp"
+            android:textColor="#000"
+            android:textSize="18sp" />
+    </LinearLayout>
+</androidx.cardview.widget.CardView>
