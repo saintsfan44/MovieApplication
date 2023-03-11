@@ -51,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
     private RetrofitService retrofitService;
 
     private MovieSearchAdapter movieSearchAdapter;
+    private PersonSearchAdapter personSearchAdapter;
 
     String TheMovieDBApiKey = "aa609b9862257ded0175f57d56a10208";
 
@@ -77,21 +78,29 @@ public class MainActivity extends AppCompatActivity {
         category.add(movie);
         category.add(actor);
 
+        sourceSpinner.attachDataSource(category);
+
+        if(Paper.book().read("position") != null){
+            int position = Paper.book().read("position");
+
+            sourceSpinner.setSelectedIndex(position);
+        }
+
         int position = sourceSpinner.getSelectedIndex();
 
         if(position == 0){
-            queryEditText.setText("Enter any movie title...");
+            queryEditText.setHint("Enter any movie title...");
         }else{
-            queryEditText.setText("Enter any actor name...");
+            queryEditText.setHint("Enter any actor name...");
         }
 
         sourceSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 if(position == 0){
-                    queryEditText.setText("Enter any movie title...");
+                    queryEditText.setHint("Enter any movie title...");
                 }else{
-                    queryEditText.setText("Enter any actor name...");
+                    queryEditText.setHint("Enter any actor name...");
                 }
             }
 
@@ -100,6 +109,59 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+
+        if(Paper.book().read("cachce") != null){
+            String results = Paper.book().read("cachce");
+
+            if(Paper.book().read("source") != null){
+                String source = Paper.book().read("source");
+
+                if(source.equals("movie")){
+                    MovieResponse movieResponse = new Gson().fromJson(results, MovieResponse.class);
+
+                    if(movieResponse != null){
+                        List<MovieResponseResults> movieResponseResults = movieResponse.getResults();
+
+                        movieSearchAdapter = new MovieSearchAdapter(MainActivity.this, movieResponseResults);
+
+                        resultRecyclerView.setAdapter(movieSearchAdapter);
+
+                        LayoutAnimationController controller = AnimationUtils.loadLayoutAnimation(MainActivity.this, R.anim.layout_slide_right);
+
+                        resultRecyclerView.setLayoutAnimation(controller);
+                        resultRecyclerView.scheduleLayoutAnimation();
+
+                        Paper.book().write("cache", new Gson().toJson(movieResponse));
+
+                        Paper.book().write("source", "movie");
+
+
+
+                    }
+                }
+                else
+                {
+                    PersonResponse personResponse = new Gson().fromJson(results, PersonResponse.class);
+
+                    if(personResponse != null) {
+                        List<PersonResponseResults> personResponseResults = personResponse.getResults();
+
+                        personSearchAdapter = new PersonSearchAdapter(MainActivity.this, personResponseResults);
+
+                        resultRecyclerView.setAdapter(personSearchAdapter);
+
+                        LayoutAnimationController controller = AnimationUtils.loadLayoutAnimation(MainActivity.this, R.anim.layout_slide_right);
+
+                        resultRecyclerView.setLayoutAnimation(controller);
+                        resultRecyclerView.scheduleLayoutAnimation();
+
+                        Paper.book().write("cache", new Gson().toJson(personResponse));
+
+                        Paper.book().write("source", "person");
+                    }
+                }
+            }
+        }
 
         querySearchButton.setOnClickListener(new View.OnClickListener(){
             public void onClick(View v){
@@ -137,13 +199,44 @@ public class MainActivity extends AppCompatActivity {
                                             resultRecyclerView.setLayoutAnimation(controller);
                                             resultRecyclerView.scheduleLayoutAnimation();
 
-                                            Paper.book().write("cache", new Gson().toJson(movieResponseResults));
+                                            Paper.book().write("cache", new Gson().toJson(movieResponse));
 
                                             Paper.book().write("source", "movie");
 
 
 
                                         }else {
+                                            Call<PersonResponse> personResponseCall = retrofitService.getActorByQuery(TheMovieDBApiKey, finalQuery);
+
+                                            personResponseCall.enqueue(new Callback<PersonResponse>() {
+
+                                                @Override
+                                                public void onResponse(Call<PersonResponse> call, Response<PersonResponse> response) {
+                                                    PersonResponse personResponse = response.body();
+
+                                                    if(personResponse != null) {
+                                                        List<PersonResponseResults> personResponseResults = personResponse.getResults();
+
+                                                        personSearchAdapter = new PersonSearchAdapter(MainActivity.this, personResponseResults);
+
+                                                        resultRecyclerView.setAdapter(personSearchAdapter);
+
+                                                        LayoutAnimationController controller = AnimationUtils.loadLayoutAnimation(MainActivity.this, R.anim.layout_slide_right);
+
+                                                        resultRecyclerView.setLayoutAnimation(controller);
+                                                        resultRecyclerView.scheduleLayoutAnimation();
+
+                                                        Paper.book().write("cache", new Gson().toJson(personResponse));
+
+                                                        Paper.book().write("source", "person");
+                                                    }
+                                                }
+
+                                                @Override
+                                                public void onFailure(Call<PersonResponse> call, Throwable t) {
+
+                                                }
+                                            });
 
                                         }
                                     }
@@ -163,5 +256,12 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        Paper.book().write("position", sourceSpinner.getSelectedIndex());
     }
 }

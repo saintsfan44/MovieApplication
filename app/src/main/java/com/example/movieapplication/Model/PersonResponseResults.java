@@ -39,7 +39,9 @@ public class PersonResponseResults {
     }
 
     public String getProfile_path() {
-        return profile_path;
+        //String baseUrl = "https://image.tmbd.org/t/p/w500/";
+        String baseUrl = "https://image.tmdb.org/t/p/original";
+        return baseUrl + profile_path;
     }
 
     public void setProfile_path(String profile_path) {
