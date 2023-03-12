@@ -91,7 +91,9 @@ public class MovieResponseResults {
 
     public String getPoster_path() {
         //String baseUrl = "https://image.tmbd.org/t/p/w500/";
-        String baseUrl = "https://image.tmdb.org/t/p/original";
+        //String baseUrl = "https://image.tmdb.org/t/p/original";
+        String baseUrl = "https://image.tmdb.org/t/p/w300";
+        //https://image.tmdb.org/t/p/w500/
         return baseUrl + poster_path;
     }
 
